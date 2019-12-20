@@ -27,14 +27,14 @@
 
 <script>
 // 导入 编辑接口
-import { subjectEdit } from "../../../../api/subject.js";
+import { enterpriseEdit } from "../../../../api/enterprise.js";
 export default {
   data() {
     return {
       // 表单数据
       editForm: {
         // 编号
-        rid: "",
+        eid: "",
         // 名字
         name: "",
         // 简称
@@ -60,7 +60,7 @@ export default {
       this.$refs.editForm.validate(valid => {
         if (valid) {
           // 对
-          subjectEdit(this.editForm).then(res => {
+          enterpriseEdit(this.editForm).then(res => {
             // window.console.log(res);
             if (res.code === 201) {
               this.$message.warning("企业编号已经存在了，请重新输入");

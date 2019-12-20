@@ -75,7 +75,7 @@
 // 导入 新增框
 import addDialog from "./components/addDialog.vue";
 // 导入 企业列表接口
-import { enterpriseList } from "../../../api/enterprise.js";
+import { enterpriseList, enterpriseRemove } from "../../../api/enterprise.js";
 export default {
   name: "enterprise",
   // 注册组件
@@ -86,16 +86,34 @@ export default {
     this.getData();
   },
   methods: {
+    // 数据删除
+    removeItem(item) {
+      this.$confirm("你要删除嘛？", "警告", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          enterpriseRemove({ id: item.id }).then(res => {
+            // window.console.log(res)
+            if(res.code===200){
+              this.$message.success("删除成功")
+              this.getData()
+            }
+          });
+        })
+        .catch(() => {});
+    },
     // 容量改变
     handleSizeChange(size) {
       this.limit = size;
       // 重新获取数据
-      this.getData()
+      this.getData();
     },
     // 页码改变
     handleCurrentChange(page) {
       this.page = page;
-      this.getData()
+      this.getData();
     },
     // 清除数据
     clear() {

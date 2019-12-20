@@ -29,12 +29,12 @@
     <el-card class="body-card">
       <el-table :data="tableData" style="width: 100%">
         <el-table-column type="index" label="序号"> </el-table-column>
-        <el-table-column prop="rid" label="企业编号"> </el-table-column>
+        <el-table-column prop="eid" label="企业编号"> </el-table-column>
         <el-table-column prop="name" label="企业名称"> </el-table-column>
         <el-table-column prop="username" label="创建者"> </el-table-column>
         <el-table-column prop="create_time" label="创建日期">
           <template slot-scope="scope">
-            {{scope.row.create_time | formatTime}}
+            {{ scope.row.create_time | formatTime }}
           </template>
         </el-table-column>
         <el-table-column prop="status" label="状态">
@@ -46,14 +46,16 @@
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button type="text" @click="showEdit(scope.row)">编辑</el-button>
-            <el-button type="text" @click="changeStatus(scope.row)">{{ scope.row.status === 1 ? "禁用" : "启用" }}</el-button>
+            <el-button type="text" @click="changeStatus(scope.row)">{{
+              scope.row.status === 1 ? "禁用" : "启用"
+            }}</el-button>
             <el-button type="text" @click="removeItem(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
       <!-- 分页器 -->
       <el-pagination
-        background 
+        background
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="page"
@@ -64,21 +66,49 @@
       >
       </el-pagination>
     </el-card>
-
+    <!-- 新增框 -->
+    <addDialog></addDialog>
   </div>
 </template>
 
 <script>
-
+// 导入 新增框
+import addDialog from "./components/addDialog.vue";
+// 导入 企业列表接口
+import { enterpriseList } from "../../../api/enterprise.js";
 export default {
-  name:"enterprise",
-  data(){
-    return{
-      // 筛选表单
-      formInline:{},
-      // 表格数据
-      tableData:[]
+  name: "enterprise",
+  // 注册组件
+  components: {
+    addDialog
+  },
+  created() {
+    this.getData()
+  },
+  methods: {
+    getData() {
+      enterpriseList({
+        page: this.page,
+        limit: this.limit
+      }).then(res => {
+        // window.console.log(res)
+        this.tableData = res.data.items;
+      });
     }
+  },
+  data() {
+    return {
+      // 筛选表单
+      formInline: {},
+      // 表格数据
+      tableData: [],
+      // 是否显示新增框
+      addFormVisible: false,
+      // 页码
+      page: 1,
+      // 页容量
+      limit: 4
+    };
   }
 };
 </script>

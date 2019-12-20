@@ -68,24 +68,43 @@
     </el-card>
     <!-- 新增框 -->
     <addDialog></addDialog>
+    <!-- 编辑框 -->
+    <editDialog ref='editDialog'></editDialog>
   </div>
 </template>
 
 <script>
 // 导入 新增框
 import addDialog from "./components/addDialog.vue";
+// 导入 编辑框
+import editDialog from "./components/editDialog.vue";
 // 导入 企业列表接口
-import { enterpriseList, enterpriseRemove } from "../../../api/enterprise.js";
+import { enterpriseList, enterpriseRemove,enterpriseStatus } from "../../../api/enterprise.js";
 export default {
   name: "enterprise",
   // 注册组件
   components: {
-    addDialog
+    addDialog,editDialog
   },
   created() {
     this.getData();
   },
   methods: {
+    showEdit(item){
+      // 显示编辑框
+      this.editFormVisible = true;
+      // 传递给编辑框 数据
+      this.$refs.editDialog.editForm = JSON.parse(JSON.stringify(item))
+    },
+    // 修改状态
+    changeStatus(item){
+      enterpriseStatus({id:item.id}).then(res=>{
+         if(res.code===200){
+              this.$message.success("修改状态成功")
+              this.getData()
+            }
+      })
+    },
     // 数据删除
     removeItem(item) {
       this.$confirm("你要删除嘛？", "警告", {
@@ -144,6 +163,8 @@ export default {
       tableData: [],
       // 是否显示新增框
       addFormVisible: false,
+      // 是否显示 编辑框
+      editFormVisible:false,
       // 页码
       page: 1,
       // 页容量

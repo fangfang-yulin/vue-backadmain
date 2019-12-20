@@ -4,7 +4,7 @@
     <el-card class="head-card">
       <el-form :inline="true" :model="formInline" class="demo-form-inline">
         <el-form-item label="企业编号">
-          <el-input class="short-input" v-model="formInline.rid"></el-input>
+          <el-input class="short-input" v-model="formInline.eid"></el-input>
         </el-form-item>
         <el-form-item label="企业名称">
           <el-input v-model="formInline.name"></el-input>
@@ -83,16 +83,38 @@ export default {
     addDialog
   },
   created() {
-    this.getData()
+    this.getData();
   },
   methods: {
+    // 容量改变
+    handleSizeChange(size) {
+      this.limit = size;
+      // 重新获取数据
+      this.getData()
+    },
+    // 页码改变
+    handleCurrentChange(page) {
+      this.page = page;
+      this.getData()
+    },
+    // 清除数据
+    clear() {
+      // 遍历 直接设置空对象
+      this.formInline = {};
+      // 不能给空字符串
+      // this.formInline =''
+      this.getData();
+    },
     getData() {
       enterpriseList({
         page: this.page,
-        limit: this.limit
+        limit: this.limit,
+        ...this.formInline // 展开运算符（扩展运算符）
       }).then(res => {
         // window.console.log(res)
         this.tableData = res.data.items;
+        // 保存总条数
+        this.total = res.data.pagination.total;
       });
     }
   },
@@ -107,7 +129,11 @@ export default {
       // 页码
       page: 1,
       // 页容量
-      limit: 4
+      limit: 4,
+      // 页容量 数组
+      pageSizes: [2, 4, 6, 9],
+      // 总条数
+      total: 0
     };
   }
 };

@@ -53,7 +53,7 @@
       </el-table>
       <!-- 分页器 -->
       <el-pagination
-        background
+        background 
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="page"

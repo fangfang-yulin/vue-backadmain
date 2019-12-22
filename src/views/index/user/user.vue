@@ -74,7 +74,7 @@ import addDialog from "./components/addDialog.vue";
 // 导入 编辑框
 import editDialog from "./components/editDialog.vue";
 // 导入 用户列表接口
-import { userList, userRemove,enterpriseStatus } from "../../../api/userManager.js";
+import { userList, userRemove,userStatus } from "../../../api/userManager.js";
 export default {
   name: "enterprise",
   // 注册组件
@@ -93,7 +93,7 @@ export default {
     },
     // 修改状态
     changeStatus(item){
-      enterpriseStatus({id:item.id}).then(res=>{
+      userStatus({id:item.id}).then(res=>{
          if(res.code===200){
               this.$message.success("修改状态成功")
               this.getData()

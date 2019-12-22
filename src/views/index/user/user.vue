@@ -74,7 +74,7 @@ import addDialog from "./components/addDialog.vue";
 // 导入 编辑框
 import editDialog from "./components/editDialog.vue";
 // 导入 用户列表接口
-import { userList, enterpriseRemove,enterpriseStatus } from "../../../api/userManager.js";
+import { userList, userRemove,enterpriseStatus } from "../../../api/userManager.js";
 export default {
   name: "enterprise",
   // 注册组件
@@ -108,7 +108,8 @@ export default {
         type: "warning"
       })
         .then(() => {
-          enterpriseRemove({ id: item.id }).then(res => {
+          // 替换为用户的删除接口
+          userRemove({ id: item.id }).then(res => {
             // window.console.log(res)
             if(res.code===200){
               this.$message.success("删除成功")

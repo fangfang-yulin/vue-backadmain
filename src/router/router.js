@@ -6,17 +6,7 @@ import VueRouter from "vue-router";
 import login from "../views/login/login.vue";
 // 导入 首页组件
 import index from "../views/index/index.vue";
-// 导入嵌套路由的组件
-// 学科组件
-import subject from "../views/index/subject/subject.vue";
-// 用户组件
-import user from "../views/index/user/user.vue";
-// 数据统计组件
-import chart from "../views/index/chart/chart.vue";
-// 题库组件
-import question from "../views/index/question/question.vue";
-// 企业组件
-import enterprise from "../views/index/enterprise/enterprise.vue";
+
 
 // 导入 token工具函数
 import { getToken, removeToken } from "../utils/token.js";
@@ -26,6 +16,8 @@ import { Message } from "element-ui";
 import { userInfo } from "../api/user.js";
 // 导入仓库
 import store from "../store/store.js";
+// 导入嵌套路由
+import children from './children.js'
 
 // Use一下 注册
 Vue.use(VueRouter);
@@ -41,51 +33,10 @@ const routes = [
     component: index,
     // 路由重定向
     // redirect: "/index/chart",
-    meta:{
-      power: ["管理员", "老师","学生"]
+    meta: {
+      power: ["管理员", "老师", "学生"]
     },
-    children: [
-      {
-        path: "subject", // /index/subject
-        component: subject,
-        meta: {
-          // 允许访问的角色
-          power: ["管理员", "老师"]
-        }
-      },
-      {
-        path: "user", // /index/user
-        component: user,
-        meta: {
-          // 允许访问的角色
-          power: ["管理员"]
-        }
-      },
-      {
-        path: "chart", // /index/chart
-        component: chart,
-        meta: {
-          // 允许访问的角色
-          power: ["管理员", "老师"]
-        }
-      },
-      {
-        path: "question", // /index/question
-        component: question,
-        meta: {
-          // 允许访问的角色
-          power: ["管理员", "老师", "学生"]
-        }
-      },
-      {
-        path: "enterprise", // /index/enterprise
-        component: enterprise,
-        meta: {
-          // 允许访问的角色
-          power: ["管理员", "老师"]
-        }
-      }
-    ]
+    children
   }
 ];
 // 创建

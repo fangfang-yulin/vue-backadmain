@@ -18,26 +18,16 @@
       <el-aside width="auto" class="my-aside">
         <!-- 导航菜单 -->
         <el-menu router :default-active="$route.path" :collapse="isCollapse" class="el-menu-vertical-demo">
-          <el-menu-item v-if="['管理员','老师'].includes(userInfo.role)" index="/index/chart">
-            <i class="el-icon-pie-chart"></i>
-            <span slot="title">数据概览</span>
-          </el-menu-item>
-          <el-menu-item v-if="['管理员'].includes(userInfo.role)" index="/index/user">
-            <i class="el-icon-user"></i>
-            <span slot="title">用户列表</span>
-          </el-menu-item>
-          <el-menu-item v-if="['管理员','老师','学生'].includes(userInfo.role)" index="/index/question">
-            <i class="el-icon-edit-outline"></i>
-            <span slot="title">题库列表</span>
-          </el-menu-item>
-          <el-menu-item v-if="['管理员','老师'].includes(userInfo.role)" index="/index/enterprise">
-            <i class="el-icon-office-building"></i>
-            <span slot="title">企业列表</span>
-          </el-menu-item>
-          <el-menu-item v-if="['管理员','老师'].includes(userInfo.role)" index="/index/subject">
-            <i class="el-icon-notebook-2"></i>
-            <span slot="title">学科列表</span>
-          </el-menu-item>
+          <!-- 如果必须要增加标签才可以写的代码，但是这个标签你不希望渲染到页面上
+            Vue提供了一个 作为占位的标签`template`
+            template 因为不会被渲染只是占位，不能写key
+           -->
+          <template v-for="item in children" >
+            <el-menu-item :key="item.path" v-if="item.meta.power.includes(userInfo.role)" :index="'/index/' + item.path">
+              <i :class="item.meta.icon"></i>
+              <span slot="title">{{ item.meta.name }}</span>
+            </el-menu-item>
+          </template>
         </el-menu>
       </el-aside>
       <el-main class="my-main">
@@ -50,12 +40,14 @@
 
 <script>
 // 导入 token工具函数
-import {  removeToken } from "../../utils/token.js";
+import { removeToken } from "../../utils/token.js";
 // 导入 接口 方法
 // import { userInfo } from "../../api/user.js";
 
 // 导入接口方法
 import { userLogout } from "../../api/user.js";
+// 导入 嵌套路由的规则
+import children from "../../router/children.js";
 export default {
   name: "index",
   data() {
@@ -64,6 +56,8 @@ export default {
       isCollapse: false,
       // 用户信息
       // userInfo: {}
+      // 嵌套路由的信息
+      children
     };
   },
   // 方法
@@ -77,17 +71,17 @@ export default {
       })
         .then(() => {
           // 确定
-          userLogout().then(res=>{
+          userLogout().then(res => {
             // window.console.log(res)
-            if(res.data.code===200){
+            if (res.data.code === 200) {
               // token
-              removeToken()
+              removeToken();
               // 用户信息
-              this.$store.state.userInfo = {}
+              this.$store.state.userInfo = {};
               // 去登录页
-              this.$router.push("/login")
+              this.$router.push("/login");
             }
-          })
+          });
         })
         .catch(() => {
           this.$message({
@@ -99,7 +93,7 @@ export default {
   },
   // 计算属性简化Vuex数据获取
   computed: {
-    userInfo(){
+    userInfo() {
       // 直接返回仓库的用户数据即可
       return this.$store.state.userInfo;
     }
@@ -182,7 +176,7 @@ export default {
     }
   }
   .my-main {
-    background-color: #E8E9EC;
+    background-color: #e8e9ec;
   }
 }
 </style>

@@ -39,26 +39,51 @@ const routes = [
   {
     path: "/index",
     component: index,
+    // 路由重定向
+    // redirect: "/index/chart",
+    meta:{
+      power: ["管理员", "老师","学生"]
+    },
     children: [
       {
         path: "subject", // /index/subject
-        component: subject
+        component: subject,
+        meta: {
+          // 允许访问的角色
+          power: ["管理员", "老师"]
+        }
       },
       {
         path: "user", // /index/user
-        component: user
+        component: user,
+        meta: {
+          // 允许访问的角色
+          power: ["管理员"]
+        }
       },
       {
         path: "chart", // /index/chart
-        component: chart
+        component: chart,
+        meta: {
+          // 允许访问的角色
+          power: ["管理员", "老师"]
+        }
       },
       {
         path: "question", // /index/question
-        component: question
+        component: question,
+        meta: {
+          // 允许访问的角色
+          power: ["管理员", "老师", "学生"]
+        }
       },
       {
         path: "enterprise", // /index/enterprise
-        component: enterprise
+        component: enterprise,
+        meta: {
+          // 允许访问的角色
+          power: ["管理员", "老师"]
+        }
       }
     ]
   }
@@ -96,17 +121,31 @@ router.beforeEach((to, from, next) => {
         window.console.log(res);
         // 如果获取成功 保存用户信息
         if (res.data.code === 200) {
-          // token 是对的 放走
-          // window.console.log(store)
-          // store.state.userInfo = res.data.data;
-          // 用户头像 增加基地址
-          // store.state.userInfo.avatar = process.env.VUE_APP_BASEURL + "/" + store.state.userInfo.avatar;
+          // 状态判断
+          if (res.data.data.status === 0) {
+            // 禁用状态
+            Message.warning("兄弟，你被封号了，请等待管理员启用你,再访问");
+            // 打回去
+            next("/login");
+          } else {
+            // 启用状态
+            // 修改头像地址 基地址拼接上 图片地址
+            res.data.data.avatar = process.env.VUE_APP_BASEURL + "/" + res.data.data.avatar;
+            // commit 提交到仓库中
+            store.commit("changeUserInfo", res.data.data);
 
-          // 修改头像地址 基地址拼接上 图片地址
-          res.data.data.avatar = process.env.VUE_APP_BASEURL + "/" +  res.data.data.avatar;
-          // commit 提交到仓库中
-          store.commit("changeUserInfo", res.data.data)
-          next();
+            // 判断当前这个用户是否可以去
+            // window.console.log(to)
+            // window.console.log(res.data.data)
+            // meta 访问的白名单匹配
+            if (to.meta.power.includes(res.data.data.role)) {
+              // 存在
+              next();
+            } else {
+              // 当前的这个用户，的角色 无法访问这个页面
+              Message.warning("你没有访问的权限哦，请联系管理员");
+            }
+          }
         } else if (res.data.code === 206) {
           // 提示用户
           Message.warning("小样，就知道会伪造token，滚犊子");

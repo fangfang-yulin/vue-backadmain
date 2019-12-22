@@ -38,6 +38,8 @@
 <script>
 // 导入 新增接口
 import { userAdd } from "../../../../api/userManager.js";
+// 导入 格式验证的函数
+import { checkEmail, checkPhone } from "../../../../utils/validator.js";
 export default {
   data() {
     return {
@@ -50,8 +52,14 @@ export default {
       // 添加表单验证规则
       addFormRules: {
         username: [{ required: true, message: "用户名不能为空", trigger: "blur" }],
-        email: [{ required: true, message: "邮箱不能为空", trigger: "blur" }],
-        phone: [{ required: true, message: "电话不能为空", trigger: "blur" }],
+        email: [
+          { required: true, message: "邮箱不能为空", trigger: "blur" },
+          { validator: checkEmail, trigger: "blur" }
+        ],
+        phone: [
+          { required: true, message: "电话不能为空", trigger: "blur" },
+          { validator: checkPhone, trigger: "blur" }
+        ],
         role_id: [{ required: true, message: "角色不能为空", trigger: "blur" }]
       }
     };

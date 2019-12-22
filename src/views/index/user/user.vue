@@ -76,7 +76,7 @@ import editDialog from "./components/editDialog.vue";
 // 导入 用户列表接口
 import { userList, userRemove,userStatus } from "../../../api/userManager.js";
 export default {
-  name: "enterprise",
+  name: "user",
   // 注册组件
   components: {
     addDialog,editDialog

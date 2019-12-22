@@ -3,19 +3,17 @@
     <!-- 头部卡片 -->
     <el-card class="head-card">
       <el-form :inline="true" :model="formInline" class="demo-form-inline">
-        <el-form-item label="用户编号">
-          <el-input class="short-input" v-model="formInline.eid"></el-input>
-        </el-form-item>
         <el-form-item label="用户名称">
-          <el-input v-model="formInline.name"></el-input>
-        </el-form-item>
-        <el-form-item label="创建者">
           <el-input class="short-input" v-model="formInline.username"></el-input>
         </el-form-item>
-        <el-form-item label="状态">
-          <el-select v-model="formInline.status" placeholder="请选择状态">
-            <el-option label="禁用" value="0"></el-option>
-            <el-option label="启用" value="1"></el-option>
+        <el-form-item label="用户邮箱">
+          <el-input v-model="formInline.email"></el-input>
+        </el-form-item>
+        <el-form-item label="角色">
+          <el-select v-model="formInline.role_id" placeholder="请选择状态">
+            <el-option label="管理员" value="2"></el-option>
+            <el-option label="老师" value="3"></el-option>
+            <el-option label="学生" value="4"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item class="btn-form-item">
@@ -29,14 +27,11 @@
     <el-card class="body-card">
       <el-table :data="tableData" style="width: 100%">
         <el-table-column type="index" label="序号"> </el-table-column>
-        <el-table-column prop="eid" label="用户编号"> </el-table-column>
-        <el-table-column prop="name" label="用户名称"> </el-table-column>
-        <el-table-column prop="username" label="创建者"> </el-table-column>
-        <el-table-column prop="create_time" label="创建日期">
-          <template slot-scope="scope">
-            {{ scope.row.create_time | formatTime }}
-          </template>
-        </el-table-column>
+        <el-table-column prop="username" label="用户名"> </el-table-column>
+        <el-table-column prop="phone" label="电话"> </el-table-column>
+        <el-table-column prop="email" label="邮箱"> </el-table-column>
+        <el-table-column prop="role" label="角色"> </el-table-column>
+        <el-table-column prop="remark" label="备注"> </el-table-column>
         <el-table-column prop="status" label="状态">
           <template slot-scope="scope">
             <span v-if="scope.row.status === 1">启用</span>
@@ -79,7 +74,7 @@ import addDialog from "./components/addDialog.vue";
 // 导入 编辑框
 import editDialog from "./components/editDialog.vue";
 // 导入 用户列表接口
-import { enterpriseList, enterpriseRemove,enterpriseStatus } from "../../../api/enterprise.js";
+import { userList, enterpriseRemove,enterpriseStatus } from "../../../api/userManager.js";
 export default {
   name: "enterprise",
   // 注册组件
@@ -143,12 +138,12 @@ export default {
       this.getData();
     },
     getData() {
-      enterpriseList({
+      userList({
         page: this.page,
         limit: this.limit,
         ...this.formInline // 展开运算符（扩展运算符）
       }).then(res => {
-        // window.console.log(res)
+        window.console.log(res)
         this.tableData = res.data.items;
         // 保存总条数
         this.total = res.data.pagination.total;
@@ -158,7 +153,14 @@ export default {
   data() {
     return {
       // 筛选表单
-      formInline: {},
+      formInline: {
+        // 用户名
+        username:"",
+        // 邮箱
+        email:"",
+        // 角色id
+        role_id:""
+      },
       // 表格数据
       tableData: [],
       // 是否显示新增框

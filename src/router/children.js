@@ -15,9 +15,9 @@ export default [
     component: subject,
     meta: {
       // 允许访问的角色
-      power: ["管理员", "老师"],
+      power: ["超级管理员","管理员", "老师"],
       // 图标
-      icon: "el-icon-notebook-2",
+      icon: "el-icon-platform-eleme",
       // 名字
       name: "学科列表"
     }
@@ -27,7 +27,7 @@ export default [
     component: user,
     meta: {
       // 允许访问的角色
-      power: ["管理员"],
+      power: ["超级管理员","管理员"],
       // 图标
       icon: "el-icon-user",
       // 名字
@@ -39,7 +39,7 @@ export default [
     component: chart,
     meta: {
       // 允许访问的角色
-      power: ["管理员", "老师"],
+      power: ["超级管理员","管理员", "老师"],
       // 图标
       icon: "el-icon-pie-chart",
       // 名字
@@ -51,7 +51,7 @@ export default [
     component: question,
     meta: {
       // 允许访问的角色
-      power: ["管理员", "老师", "学生"],
+      power: ["超级管理员","管理员", "老师", "学生"],
       // 图标
       icon: "el-icon-edit-outline",
       // 名字
@@ -63,7 +63,7 @@ export default [
     component: enterprise,
     meta: {
       // 允许访问的角色
-      power: ["管理员", "老师"],
+      power: ["超级管理员","管理员", "老师"],
       // 图标
       icon: "el-icon-office-building",
       // 名字

@@ -19,9 +19,11 @@ Vue.config.productionTip = false;
 
 // 测试环境变量
 // window.console.log(process.env.VUE_APP_BASEURL)
-
 // 过滤器只要保证运行 即可 不需使用值
 import './filters/filters.js'
+
+// 导入 自定义指令
+import './directives/directives.js'
 
 new Vue({
   render: h => h(App),

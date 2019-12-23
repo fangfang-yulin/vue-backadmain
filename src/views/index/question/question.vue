@@ -48,8 +48,8 @@
           </el-select>
         </el-form-item>
         <br />
-        <el-form-item label="标题" class='title-input'>
-          <el-input v-model="formInline.xxx" ></el-input>
+        <el-form-item label="标题" class="title-input">
+          <el-input v-model="formInline.xxx"></el-input>
         </el-form-item>
         <el-form-item class="btn-form-item">
           <el-button type="primary" @click="getData">搜索</el-button>
@@ -62,10 +62,24 @@
     <el-card class="body-card">
       <el-table :data="tableData" style="width: 100%" border>
         <el-table-column type="index" label="序号"> </el-table-column>
-        <el-table-column prop="rid" label="题目"> </el-table-column>
-        <el-table-column prop="name" label="学科·阶段"> </el-table-column>
-        <el-table-column prop="short_name" label="题型"> </el-table-column>
-        <el-table-column prop="username" label="企业"> </el-table-column>
+        <el-table-column prop="title" label="题目">
+          <template slot-scope="scope">
+            <span v-html="scope.row.title"></span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="name" label="学科·阶段">
+          <template slot-scope="scope">
+            {{ scope.row.subject_name }}
+            {{ { 1: "初级", 2: "中级", 3: "高级" }[scope.row.step] }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="type" label="题型">
+          <template slot-scope="scope">
+            {{ { 1: "单选", 2: "多选", 3: "简答" }[scope.row.type] }}
+            <!-- {{ scope.row.type | fomatType }} -->
+          </template>
+        </el-table-column>
+        <el-table-column prop="enterprise_name" label="企业"> </el-table-column>
         <el-table-column prop="username" label="创建者"> </el-table-column>
         <el-table-column prop="status" label="状态">
           <template slot-scope="scope">
@@ -73,7 +87,7 @@
             <span class="red" v-else>禁用</span>
           </template>
         </el-table-column>
-        <el-table-column prop="username" label="创建者"> </el-table-column>
+        <el-table-column prop="reads" label="访问量"> </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button type="text" @click="showEdit(scope.row)">编辑</el-button>
@@ -106,16 +120,35 @@
 
 <script>
 // 企业列表 接口
-import{enterpriseList} from '../../../api/enterprise.js'
+import { enterpriseList } from "../../../api/enterprise.js";
 // 学科列表 接口
-import{subjectList} from '../../../api/subject.js'
-// 导入新增框 
-import addDialog from './components/addDialog.vue'
+import { subjectList } from "../../../api/subject.js";
+// 题库列表接口
+import { questionList } from "../../../api/question.js";
+// 导入新增框
+import addDialog from "./components/addDialog.vue";
 export default {
   name: "question",
   // 注册组件
-  components:{
-    addDialog,
+  components: {
+    addDialog
+  },
+  filters: {
+    fomatType(type) {
+      let typeStr = "";
+      switch (type) {
+        case 1:
+          typeStr = "单选";
+          break;
+        case 2:
+          typeStr = "多选";
+          break;
+        case 3:
+          typeStr = "简答";
+          break;
+      }
+      return typeStr;
+    }
   },
   data() {
     return {
@@ -124,24 +157,29 @@ export default {
       // table绑定的数据
       tableData: [],
       // 定义企业数据
-      enterpriseList:[],
+      enterpriseList: [],
       // 定义学科数据
-      subjectList:[],
+      subjectList: [],
       // 是否显示新增框
-      addFormVisible:false,
+      addFormVisible: false
     };
   },
   created() {
     // 获取企业数据
-    enterpriseList().then(res=>{
+    enterpriseList().then(res => {
       // window.console.log(res.data.items)
-      this.enterpriseList = res.data.items
-    })
+      this.enterpriseList = res.data.items;
+    });
     // 获取 学科数据
-    subjectList().then(res=>{
-      this.subjectList = res.data.items
-    })
-  },
+    subjectList().then(res => {
+      this.subjectList = res.data.items;
+    });
+    // 获取题库列表数据
+    questionList().then(res => {
+      // window.console.log(res)
+      this.tableData = res.data.items;
+    });
+  }
 };
 </script>
 <style lang="less">
@@ -180,13 +218,13 @@ export default {
     }
   }
   // 标题
-   .title-input .el-form-item__content{
+  .title-input .el-form-item__content {
     width: 388px;
   }
 
   // .el-form--inline  .el-form-item:not(.title-input)
   //   选择器1         后代的 选择器2 但是没有.title-input这个类名
-  .el-form--inline  .el-form-item:not(.title-input){
+  .el-form--inline .el-form-item:not(.title-input) {
     margin-right: 0;
   }
 }

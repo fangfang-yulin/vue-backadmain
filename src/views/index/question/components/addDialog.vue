@@ -44,11 +44,11 @@
       </el-form-item>
       <!-- 分割线 -->
       <hr />
-      <el-form-item label="试题标题"> </el-form-item>
+      <el-form-item label="试题标题" prop="title"> </el-form-item>
       <div class="title-toolbar"></div>
       <div class="title-content"></div>
-      <!-- 选项区域 -->
-      <el-form-item label="单选">
+      <!-- 选项区域--单选 -->
+      <el-form-item v-if="addForm.type == 1" label="单选" prop="single_select_answer">
         <el-radio-group v-model="addForm.single_select_answer">
           <!-- 选项A -->
           <div class="radio-box">
@@ -120,6 +120,83 @@
           </div>
         </el-radio-group>
       </el-form-item>
+      <!-- 选项区域--多选 -->
+      <el-form-item v-else-if="addForm.type == 2" label="多选" prop="multiple_select_answer">
+        <el-checkbox-group v-model="addForm.multiple_select_answer">
+          <!-- 选项A -->
+          <div class="radio-box">
+            <el-checkbox label="A">A</el-checkbox>
+            <!-- 输入框 -->
+            <el-input v-model="addForm.select_options[0].text"></el-input>
+            <!-- 上传组件 -->
+            <el-upload
+              class="avatar-uploader"
+              :action="uploadUrl"
+              :show-file-list="false"
+              :on-success="handleAvatarSuccess"
+              :before-upload="beforeAvatarUpload"
+            >
+              <img v-if="imageAUrl" :src="imageAUrl" class="avatar" />
+              <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload>
+          </div>
+          <!-- 选项B -->
+          <div class="radio-box">
+            <el-checkbox label="B">B</el-checkbox>
+            <!-- 输入框 -->
+            <el-input v-model="addForm.select_options[1].text"></el-input>
+            <!-- 上传组件 -->
+            <el-upload
+              class="avatar-uploader"
+              :action="uploadUrl"
+              :show-file-list="false"
+              :on-success="handleBvatarSuccess"
+              :before-upload="beforeAvatarUpload"
+            >
+              <img v-if="imageBUrl" :src="imageBUrl" class="avatar" />
+              <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload>
+          </div>
+          <!-- 选项C -->
+          <div class="radio-box">
+            <el-checkbox label="C">C</el-checkbox>
+            <!-- 输入框 -->
+            <el-input v-model="addForm.select_options[2].text"></el-input>
+            <!-- 上传组件 -->
+            <el-upload
+              class="avatar-uploader"
+              :action="uploadUrl"
+              :show-file-list="false"
+              :on-success="handleCvatarSuccess"
+              :before-upload="beforeAvatarUpload"
+            >
+              <img v-if="imageCUrl" :src="imageCUrl" class="avatar" />
+              <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload>
+          </div>
+          <!-- 选项D -->
+          <div class="radio-box">
+            <el-checkbox label="D">D</el-checkbox>
+            <!-- 输入框 -->
+            <el-input v-model="addForm.select_options[3].text"></el-input>
+            <!-- 上传组件 -->
+            <el-upload
+              class="avatar-uploader"
+              :action="uploadUrl"
+              :show-file-list="false"
+              :on-success="handleDvatarSuccess"
+              :before-upload="beforeAvatarUpload"
+            >
+              <img v-if="imageDUrl" :src="imageDUrl" class="avatar" />
+              <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload>
+          </div>
+        </el-checkbox-group>
+      </el-form-item>
+      <!-- 简答题区域 -->
+      <el-form-item v-else label="简答题" prop="short_answer">
+        <el-input v-model="addForm.short_answer" type="textarea" :rows="6"></el-input>
+      </el-form-item>
       <!-- 视频上传区域 -->
       <el-divider></el-divider>
       <el-form-item label="解析视频">
@@ -133,12 +210,17 @@
           <el-button size="small" type="primary">点击上传</el-button>
           <div slot="tip" class="el-upload__tip">只能上传MP4文件，且不超过2000kb</div>
         </el-upload>
-        <video class='preview-video' :src="VideoUrl" v-if="VideoUrl" controls></video>
+        <video class="preview-video" :src="VideoUrl" v-if="VideoUrl" controls></video>
       </el-form-item>
       <!-- 答案解析 -->
-      <el-form-item label="答案解析"></el-form-item>
+      <el-form-item label="答案解析" prop="answer_analyze"></el-form-item>
       <div class="answer-toolbar"></div>
       <div class="answer-content"></div>
+      <!-- 试题备注 -->
+      <el-divider></el-divider>
+      <el-form-item label="试题备注" prop="remark">
+        <el-input v-model="addForm.remark" type="textarea" :rows="2"></el-input>
+      </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button @click="$parent.addFormVisible = false">取 消</el-button>
@@ -149,7 +231,7 @@
 
 <script>
 // 导入 新增接口
-import { subjectAdd } from "../../../../api/subject.js";
+import { questionAdd } from "../../../../api/question.js";
 // 导入 省市区数据
 import { regionData } from "element-china-area-data";
 // 导入 富文本编辑器
@@ -163,6 +245,10 @@ export default {
       props: { expandTrigger: "hover", value: "label" },
       // 表单数据
       addForm: {
+        // 多选的 答案
+        multiple_select_answer: [],
+        // 默认显示单选
+        type: 1,
         // 选项的数据
         select_options: [
           {
@@ -191,8 +277,30 @@ export default {
       formLabelWidth: "80px",
       // 添加表单验证规则
       addFormRules: {
-        rid: [{ required: true, message: "题库编号不能为空", trigger: "blur" }],
-        name: [{ required: true, message: "题库名称不能为空", trigger: "blur" }]
+        // 学科 subject,
+        subject: [{ required: true, message: "学科不能为空", trigger: "change" }],
+        // 阶段 step,
+        step: [{ required: true, message: "阶段不能为空", trigger: "change" }],
+        // 企业 enterprise,
+        enterprise: [{ required: true, message: "企业不能为空", trigger: "change" }],
+        // 城市 city,
+        city: [{ required: true, message: "城市不能为空", trigger: "change" }],
+        // 题型 type,
+        type: [{ required: true, message: "题型不能为空", trigger: "change" }],
+        // 难度 difficulty,
+        difficulty: [{ required: true, message: "难度不能为空", trigger: "change" }],
+        // 标题 title,
+        title: [{ required: true, message: "标题不能为空", trigger: "change" }],
+        // 答案 single_select_answer,
+        single_select_answer: [{ required: true, message: "答案不能为空", trigger: "change" }],
+        // 解析 answer_analyze,
+        answer_analyze: [{ required: true, message: "解析不能为空", trigger: "change" }],
+        // 备注 remark,
+        remark: [{ required: true, message: "备注不能为空", trigger: "change" }],
+        // 多选的 规则 multiple_select_answer
+        multiple_select_answer: [{ required: true, message: "多选不能为空", trigger: "change" }],
+        // 简答题的 规则 multiple_select_answer
+        short_answer: [{ required: true, message: "多选不能为空", trigger: "change" }]
       },
       // 富文本编辑器 标题部分
       titleEditor: undefined,
@@ -216,8 +324,8 @@ export default {
       this.$refs.addForm.validate(valid => {
         if (valid) {
           // 对
-          subjectAdd(this.addForm).then(res => {
-            // window.console.log(res);
+          questionAdd(this.addForm).then(res => {
+            window.console.log(res);
             if (res.code === 201) {
               this.$message.warning("题库编号已经存在了，请重新输入");
             } else if (res.code === 200) {
@@ -342,11 +450,13 @@ export default {
     }
   }
   // 设置富文本的边框
-  .title-toolbar,.answer-toolbar {
+  .title-toolbar,
+  .answer-toolbar {
     border: 1px solid #c7c7c7;
     border-bottom: none;
   }
-  .title-content,.answer-content {
+  .title-content,
+  .answer-content {
     border: 1px solid #c7c7c7;
     height: 100px;
   }
@@ -389,9 +499,13 @@ export default {
     display: flex;
     align-items: center;
     margin-top: 45px;
+    // 小间隙
+    .el-checkbox {
+      margin-right: 30px;
+    }
   }
 
-  .preview-video{
+  .preview-video {
     width: 320px;
   }
 }

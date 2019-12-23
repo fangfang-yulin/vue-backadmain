@@ -5,8 +5,7 @@
       <el-form :inline="true" :model="formInline" class="demo-form-inline">
         <el-form-item label="学科">
           <el-select v-model="formInline.status" placeholder="请选择学科">
-            <el-option label="禁用" value="0"></el-option>
-            <el-option label="启用" value="1"></el-option>
+            <el-option v-for="item in subjectList" :key="item.id" :label="item.name" :value="item.id"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="阶段">
@@ -17,8 +16,7 @@
         </el-form-item>
         <el-form-item label="企业">
           <el-select v-model="formInline.status" placeholder="请选择企业">
-            <el-option label="禁用" value="0"></el-option>
-            <el-option label="启用" value="1"></el-option>
+            <el-option v-for="item in enterpriseList" :key="item.id" :label="item.name" :value="item.id"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="题型">
@@ -107,6 +105,10 @@
 </template>
 
 <script>
+// 企业列表 接口
+import{enterpriseList} from '../../../api/enterprise.js'
+// 学科列表 接口
+import{subjectList} from '../../../api/subject.js'
 export default {
   name: "question",
   data() {
@@ -114,9 +116,24 @@ export default {
       // 筛选的数据
       formInline: {},
       // table绑定的数据
-      tableData: []
+      tableData: [],
+      // 定义企业数据
+      enterpriseList:[],
+      // 定义学科数据
+      subjectList:[]
     };
-  }
+  },
+  created() {
+    // 获取企业数据
+    enterpriseList().then(res=>{
+      // window.console.log(res.data.items)
+      this.enterpriseList = res.data.items
+    })
+    // 获取 学科数据
+    subjectList().then(res=>{
+      this.subjectList = res.data.items
+    })
+  },
 };
 </script>
 <style lang="less">

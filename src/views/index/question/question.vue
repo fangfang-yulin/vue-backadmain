@@ -1,5 +1,5 @@
 <template>
-  <div class="subject-container">
+  <div class="question-container">
     <!-- 头部卡片 -->
     <el-card class="head-card">
       <el-form :inline="true" :model="formInline" class="demo-form-inline">
@@ -109,8 +109,14 @@
 import{enterpriseList} from '../../../api/enterprise.js'
 // 学科列表 接口
 import{subjectList} from '../../../api/subject.js'
+// 导入新增框 
+import addDialog from './components/addDialog.vue'
 export default {
   name: "question",
+  // 注册组件
+  components:{
+    addDialog,
+  },
   data() {
     return {
       // 筛选的数据
@@ -120,7 +126,9 @@ export default {
       // 定义企业数据
       enterpriseList:[],
       // 定义学科数据
-      subjectList:[]
+      subjectList:[],
+      // 是否显示新增框
+      addFormVisible:false,
     };
   },
   created() {
@@ -137,7 +145,8 @@ export default {
 };
 </script>
 <style lang="less">
-.subject-container {
+// css作用域
+.question-container {
   .head-card {
     // 设置按钮的容器尺寸
     .el-form-item__content {
@@ -164,7 +173,7 @@ export default {
   span.red {
     color: #ff4b4b;
   }
-  .el-form-item {
+  .head-card .el-form-item {
     .el-form-item__label {
       padding-left: 30px;
       padding-right: 30px;

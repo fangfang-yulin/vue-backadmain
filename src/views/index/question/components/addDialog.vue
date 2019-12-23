@@ -120,6 +120,25 @@
           </div>
         </el-radio-group>
       </el-form-item>
+      <!-- 视频上传区域 -->
+      <el-divider></el-divider>
+      <el-form-item label="解析视频">
+        <!-- 上传组件 -->
+        <el-upload
+          :action="uploadUrl"
+          :show-file-list="false"
+          :on-success="handleVideoSuccess"
+          :before-upload="beforeVideoUpload"
+        >
+          <el-button size="small" type="primary">点击上传</el-button>
+          <div slot="tip" class="el-upload__tip">只能上传MP4文件，且不超过2000kb</div>
+        </el-upload>
+        <video class='preview-video' :src="VideoUrl" v-if="VideoUrl" controls></video>
+      </el-form-item>
+      <!-- 答案解析 -->
+      <el-form-item label="答案解析"></el-form-item>
+      <div class="answer-toolbar"></div>
+      <div class="answer-content"></div>
     </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button @click="$parent.addFormVisible = false">取 消</el-button>
@@ -177,13 +196,17 @@ export default {
       },
       // 富文本编辑器 标题部分
       titleEditor: undefined,
+      // 富文本编辑器 答案解析部分
+      answerEditor: undefined,
       // 本地预览地址1
-      imageAUrl:"",
-      imageBUrl:"",
-      imageCUrl:"",
-      imageDUrl:"",
+      imageAUrl: "",
+      imageBUrl: "",
+      imageCUrl: "",
+      imageDUrl: "",
       // 文件的上传地址
-      uploadUrl:process.env.VUE_APP_BASEURL+"/question/upload"
+      uploadUrl: process.env.VUE_APP_BASEURL + "/question/upload",
+      // 视频临时地址
+      VideoUrl: ""
     };
   },
   // mounted 是第一次加载完毕，但是对话框还在没有加载出来
@@ -224,6 +247,18 @@ export default {
         };
         this.titleEditor.create();
       }
+      // 答案解析富文本编辑器 创建
+      if (this.answerEditor === undefined) {
+        this.answerEditor = new wangeditor(".answer-toolbar", ".answer-content");
+        // 注册change事件
+        this.answerEditor.customConfig.onchange = html => {
+          // html 即变化之后的内容
+          // window.console.log(html);
+          // 设置给 标题
+          this.addForm.answer_analyze = html;
+        };
+        this.answerEditor.create();
+      }
     },
     // 上传组件的钩子
     handleAvatarSuccess(res, file) {
@@ -252,7 +287,7 @@ export default {
     },
     // 验证 的逻辑
     beforeAvatarUpload(file) {
-      const isJPG = file.type === "image/jpeg"||file.type === "image/png";
+      const isJPG = file.type === "image/jpeg" || file.type === "image/png";
       const isLt2M = file.size / 1024 / 1024 < 2;
 
       if (!isJPG) {
@@ -260,6 +295,28 @@ export default {
       }
       if (!isLt2M) {
         this.$message.error("上传头像图片大小不能超过 2MB!");
+      }
+      return isJPG && isLt2M;
+    },
+    // 视频上传的 成功钩子
+    handleVideoSuccess(res, file) {
+      // window.console.log(res)
+      // 本地临时地址
+      this.VideoUrl = URL.createObjectURL(file.raw);
+      // 设置给第一个选项的 图片地址
+      this.addForm.video = res.data.url;
+    },
+    // 视频上传判断 的逻辑
+    beforeVideoUpload(file) {
+      const isJPG = file.type === "video/mp4";
+      // 2m
+      const isLt2M = file.size / 1024 / 1024 < 2;
+
+      if (!isJPG) {
+        this.$message.error("上传视频只能是 MP4格式!");
+      }
+      if (!isLt2M) {
+        this.$message.error("上传视频大小不能超过 2MB!");
       }
       return isJPG && isLt2M;
     }
@@ -285,11 +342,11 @@ export default {
     }
   }
   // 设置富文本的边框
-  .title-toolbar {
+  .title-toolbar,.answer-toolbar {
     border: 1px solid #c7c7c7;
     border-bottom: none;
   }
-  .title-content {
+  .title-content,.answer-content {
     border: 1px solid #c7c7c7;
     height: 100px;
   }
@@ -332,6 +389,10 @@ export default {
     display: flex;
     align-items: center;
     margin-top: 45px;
+  }
+
+  .preview-video{
+    width: 320px;
   }
 }
 </style>

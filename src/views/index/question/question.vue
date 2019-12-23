@@ -4,36 +4,39 @@
     <el-card class="head-card">
       <el-form :inline="true" :model="formInline" class="demo-form-inline">
         <el-form-item label="学科">
-          <el-select v-model="formInline.status" placeholder="请选择学科">
+          <el-select v-model="formInline.subject" placeholder="请选择学科">
             <el-option v-for="item in subjectList" :key="item.id" :label="item.name" :value="item.id"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="阶段">
-          <el-select v-model="formInline.status" placeholder="请选择阶段">
-            <el-option label="禁用" value="0"></el-option>
-            <el-option label="启用" value="1"></el-option>
+          <el-select v-model="formInline.step" placeholder="请选择阶段">
+            <el-option label="初级" :value="1"></el-option>
+            <el-option label="中级" :value="2"></el-option>
+            <el-option label="高级" :value="3"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="企业">
-          <el-select v-model="formInline.status" placeholder="请选择企业">
+          <el-select v-model="formInline.enterprise" placeholder="请选择企业">
             <el-option v-for="item in enterpriseList" :key="item.id" :label="item.name" :value="item.id"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="题型">
-          <el-select v-model="formInline.status" placeholder="请选择题型">
-            <el-option label="禁用" value="0"></el-option>
-            <el-option label="启用" value="1"></el-option>
+          <el-select v-model="formInline.type" placeholder="请选择题型">
+            <el-option label="单选" :value="1"></el-option>
+            <el-option label="多选" :value="2"></el-option>
+            <el-option label="简答" :value="3"></el-option>
           </el-select>
         </el-form-item>
         <br />
         <el-form-item label="难度">
-          <el-select v-model="formInline.status" placeholder="请选择难度">
-            <el-option label="禁用" value="0"></el-option>
-            <el-option label="启用" value="1"></el-option>
+          <el-select v-model="formInline.difficulty" placeholder="请选择难度">
+            <el-option label="简单" :value="1"></el-option>
+            <el-option label="一般" :value="2"></el-option>
+            <el-option label="困难" :value="3"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="作者">
-          <el-input v-model="formInline.xxx"></el-input>
+          <el-input v-model="formInline.username"></el-input>
         </el-form-item>
         <el-form-item label="状态">
           <el-select v-model="formInline.status" placeholder="请选择状态">
@@ -42,14 +45,11 @@
           </el-select>
         </el-form-item>
         <el-form-item label="日期">
-          <el-select v-model="formInline.status" placeholder="请选择日期">
-            <el-option label="禁用" value="0"></el-option>
-            <el-option label="启用" value="1"></el-option>
-          </el-select>
+          <el-date-picker v-model="formInline.create_date" placeholder=""></el-date-picker>
         </el-form-item>
         <br />
         <el-form-item label="标题" class="title-input">
-          <el-input v-model="formInline.xxx"></el-input>
+          <el-input v-model="formInline.title"></el-input>
         </el-form-item>
         <el-form-item class="btn-form-item">
           <el-button type="primary" @click="getData">搜索</el-button>
@@ -161,7 +161,16 @@ export default {
       // 定义学科数据
       subjectList: [],
       // 是否显示新增框
-      addFormVisible: false
+      addFormVisible: false,
+      // 分页相关的数据
+      // 页码
+      page: 1,
+      // 页容量
+      limit: 2,
+      // 容量数组
+      pageSizes: [2, 4, 6, 8],
+      // 总条数
+      total: 0
     };
   },
   created() {
@@ -174,11 +183,42 @@ export default {
     subjectList().then(res => {
       this.subjectList = res.data.items;
     });
-    // 获取题库列表数据
-    questionList().then(res => {
-      // window.console.log(res)
-      this.tableData = res.data.items;
-    });
+
+    // 调用 数据获取接口
+    this.getData();
+  },
+  methods: {
+    clear() {
+      this.formInline = {};
+      // 重新获取数据
+      this.getData();
+    },
+    getData() {
+      // 调用接口 传递 筛选数据即可
+      questionList({
+        page: this.page,
+        limit: this.limit,
+        ...this.formInline
+      }).then(res => {
+        // window.console.log(res)
+        // 赋值给 tableData
+        this.tableData = res.data.items;
+        // 总条数
+        this.total = res.data.pagination.total;
+      });
+    },
+    // 页容量改变
+    handleSizeChange(limit) {
+      this.limit =limit;
+      // 重新获取数据
+      this.getData()
+    },
+    // 页码改变
+    handleCurrentChange(page) {
+      this.page =page;
+      // 重新获取数据
+      this.getData();
+    }
   }
 };
 </script>

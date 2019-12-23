@@ -63,7 +63,58 @@
               :on-success="handleAvatarSuccess"
               :before-upload="beforeAvatarUpload"
             >
-              <img v-if="imageUrl" :src="imageUrl" class="avatar" />
+              <img v-if="imageAUrl" :src="imageAUrl" class="avatar" />
+              <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload>
+          </div>
+          <!-- 选项B -->
+          <div class="radio-box">
+            <el-radio label="B">B</el-radio>
+            <!-- 输入框 -->
+            <el-input v-model="addForm.select_options[1].text"></el-input>
+            <!-- 上传组件 -->
+            <el-upload
+              class="avatar-uploader"
+              :action="uploadUrl"
+              :show-file-list="false"
+              :on-success="handleBvatarSuccess"
+              :before-upload="beforeAvatarUpload"
+            >
+              <img v-if="imageBUrl" :src="imageBUrl" class="avatar" />
+              <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload>
+          </div>
+          <!-- 选项C -->
+          <div class="radio-box">
+            <el-radio label="C">C</el-radio>
+            <!-- 输入框 -->
+            <el-input v-model="addForm.select_options[2].text"></el-input>
+            <!-- 上传组件 -->
+            <el-upload
+              class="avatar-uploader"
+              :action="uploadUrl"
+              :show-file-list="false"
+              :on-success="handleCvatarSuccess"
+              :before-upload="beforeAvatarUpload"
+            >
+              <img v-if="imageCUrl" :src="imageCUrl" class="avatar" />
+              <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload>
+          </div>
+          <!-- 选项D -->
+          <div class="radio-box">
+            <el-radio label="D">D</el-radio>
+            <!-- 输入框 -->
+            <el-input v-model="addForm.select_options[3].text"></el-input>
+            <!-- 上传组件 -->
+            <el-upload
+              class="avatar-uploader"
+              :action="uploadUrl"
+              :show-file-list="false"
+              :on-success="handleDvatarSuccess"
+              :before-upload="beforeAvatarUpload"
+            >
+              <img v-if="imageDUrl" :src="imageDUrl" class="avatar" />
               <i v-else class="el-icon-plus avatar-uploader-icon"></i>
             </el-upload>
           </div>
@@ -126,8 +177,11 @@ export default {
       },
       // 富文本编辑器 标题部分
       titleEditor: undefined,
-      // 本地预览地址
-      imageUrl:"",
+      // 本地预览地址1
+      imageAUrl:"",
+      imageBUrl:"",
+      imageCUrl:"",
+      imageDUrl:"",
       // 文件的上传地址
       uploadUrl:process.env.VUE_APP_BASEURL+"/question/upload"
     };
@@ -174,10 +228,29 @@ export default {
     // 上传组件的钩子
     handleAvatarSuccess(res, file) {
       // window.console.log(res)
-      this.imageUrl = URL.createObjectURL(file.raw);
+      this.imageAUrl = URL.createObjectURL(file.raw);
       // 设置给第一个选项的 图片地址
       this.addForm.select_options[0].image = res.data.url;
     },
+    handleBvatarSuccess(res, file) {
+      // window.console.log(res)
+      this.imageBUrl = URL.createObjectURL(file.raw);
+      // 设置给第一个选项的 图片地址
+      this.addForm.select_options[1].image = res.data.url;
+    },
+    handleCvatarSuccess(res, file) {
+      // window.console.log(res)
+      this.imageCUrl = URL.createObjectURL(file.raw);
+      // 设置给第一个选项的 图片地址
+      this.addForm.select_options[2].image = res.data.url;
+    },
+    handleDvatarSuccess(res, file) {
+      // window.console.log(res)
+      this.imageDUrl = URL.createObjectURL(file.raw);
+      // 设置给第一个选项的 图片地址
+      this.addForm.select_options[3].image = res.data.url;
+    },
+    // 验证 的逻辑
     beforeAvatarUpload(file) {
       const isJPG = file.type === "image/jpeg"||file.type === "image/png";
       const isLt2M = file.size / 1024 / 1024 < 2;
@@ -258,6 +331,7 @@ export default {
   .radio-box {
     display: flex;
     align-items: center;
+    margin-top: 45px;
   }
 }
 </style>

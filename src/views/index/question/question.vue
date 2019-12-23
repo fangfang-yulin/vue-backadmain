@@ -127,11 +127,14 @@ import { subjectList } from "../../../api/subject.js";
 import { questionList, questionStatus, questionRemove } from "../../../api/question.js";
 // 导入新增框
 import addDialog from "./components/addDialog.vue";
+// 导入编辑框
+import editDialog from "./components/editDialog.vue";
 export default {
   name: "question",
   // 注册组件
   components: {
-    addDialog
+    addDialog,
+    editDialog
   },
   filters: {
     fomatType(type) {
@@ -162,6 +165,8 @@ export default {
       subjectList: [],
       // 是否显示新增框
       addFormVisible: false,
+      // 是否显示 编辑框
+      editFormVisible: false,
       // 分页相关的数据
       // 页码
       page: 1,
@@ -257,6 +262,15 @@ export default {
           });
         })
         .catch(() => {});
+    },
+    // 进入编辑状态
+    showEdit(item) {
+      // 修改标记的布尔值 让他弹出来
+      this.editFormVisible = true;
+      // 深拷贝 并赋值
+      this.$refs.editDialog.editForm = JSON.parse(JSON.stringify(item));
+      // 处理 城市信息
+      this.$refs.editDialog.editForm.city = this.$refs.editDialog.editForm.city.split(',');
     }
   }
 };

@@ -124,7 +124,7 @@ import { enterpriseList } from "../../../api/enterprise.js";
 // 学科列表 接口
 import { subjectList } from "../../../api/subject.js";
 // 题库列表接口
-import { questionList } from "../../../api/question.js";
+import { questionList, questionStatus, questionRemove } from "../../../api/question.js";
 // 导入新增框
 import addDialog from "./components/addDialog.vue";
 export default {
@@ -209,15 +209,54 @@ export default {
     },
     // 页容量改变
     handleSizeChange(limit) {
-      this.limit =limit;
+      this.limit = limit;
       // 重新获取数据
-      this.getData()
+      this.getData();
     },
     // 页码改变
     handleCurrentChange(page) {
-      this.page =page;
+      this.page = page;
       // 重新获取数据
       this.getData();
+    },
+    // 修改状态
+    changeStatus(item) {
+      questionStatus({ id: item.id }).then(res => {
+        if (res.code === 200) {
+          this.$message.success("状态修改成功");
+          this.getData();
+        }
+      });
+    },
+    // 删除数据
+    removeItem(item) {
+      this.$confirm("你真的要把他删掉吗？o(╥﹏╥)o", "友情提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          questionRemove({
+            id: item.id
+          }).then(res => {
+            if (res.code === 200) {
+              this.$message.success("删除成功");
+              if (this.tableData.length == 1) {
+                // 一会刷新就没有数据了
+                // 修改页码
+                this.page--;
+                // 三元表达式
+                // 如果 this.page 小于1 那么就变为1 否则 是什么就是什么
+                // this.page = this.page<1?1:this.page
+                if (this.page < 1) {
+                  this.page = 1;
+                }
+              }
+              this.getData();
+            }
+          });
+        })
+        .catch(() => {});
     }
   }
 };
